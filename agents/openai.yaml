@@ -1,0 +1,4 @@
+interface:
+  display_name: "课堂重点"
+  short_description: "融合课堂逐字稿、照片与课程资料，整理有时间定位和来源说明的复习笔记"
+  default_prompt: "使用 $ketang-zhongdian 整理这次课的逐字稿和可用照片，核对资料并保留来源与疑点。"

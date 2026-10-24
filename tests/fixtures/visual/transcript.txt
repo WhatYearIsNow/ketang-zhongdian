@@ -1,0 +1,8 @@
+• Speaker 1 00:00
+This is a synthetic measurement lecture on 2026-10-23. The recorder runs continuously.
+• Speaker 1 05:00
+Example A: the instrument range on this slide is 2 V. Use Table A for allowed settings. I am not requiring you to memorize the entire table.
+• Speaker 1 15:00
+Example B: recorded uncertainty is u equals 0.02 V. Write the unit beside every result. There is a blue triangle in the bottom right.
+• Speaker 1 18:00
+No homework today. Next class we will compare two measurements.
