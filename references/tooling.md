@@ -1,6 +1,6 @@
 # 本地脚本约定
 
-维护者另可运行 `python scripts/build_release.py --output ../ketang-zhongdian-0.2.1.zip`。它读取项目根 `release-manifest.json`，仅打包明确列出的文件并附 `MANIFEST.sha256`；固定文件顺序、权限与 ZIP 时间。拒绝路径越界、符号链接、缺失文件与大小写冲突。输出必须在源码目录以外，保护源文件；不同既存包需显式 `--overwrite`。退出 0 为写入/同内容，2 为坏输入/写入失败；stdout 为 JSON。相同 Python/zlib 环境字节可重复，跨 zlib 版本不保证压缩字节相同。它不自动跑测试，也不自动批准清单里的素材公开。
+维护者另可运行 `python scripts/build_release.py --output ../ketang-zhongdian-0.2.2.zip`。它读取项目根 `release-manifest.json`，仅打包明确列出的文件并附 `MANIFEST.sha256`；固定文件顺序、权限与 ZIP 时间。拒绝路径越界、符号链接、缺失文件与大小写冲突。输出必须在源码目录以外，保护源文件；不同既存包需显式 `--overwrite`。退出 0 为写入/同内容，2 为坏输入/写入失败；stdout 为 JSON。相同 Python/zlib 环境字节可重复，跨 zlib 版本不保证压缩字节相同。它不自动跑测试，也不自动批准清单里的素材公开。
 
 Python 3.10+，只用标准库，均支持 `--help`。命令中的相对路径以当前工作目录解析；可在任意目录用脚本绝对路径执行。无需 pip 安装、API 密钥或联网。
 

@@ -34,7 +34,7 @@ python scripts/check_links.py NOTE.md --root COURSE_OR_VAULT_ROOT --json
 python -m unittest discover -s tests -v
 ```
 
-维护发布时执行 `python scripts/build_release.py --output ../ketang-zhongdian-0.2.1.zip`。打包仅使用 [发布清单](release-manifest.json) 中的文件，并生成逐文件 SHA-256；新增文件须审查后显式加入清单。文件时间戳固定，同一环境和相同输入产生相同 ZIP。已有不同内容的包不会默认覆盖。发布前先运行测试，打包成功本身不代表测试通过。
+维护发布时执行 `python scripts/build_release.py --output ../ketang-zhongdian-0.2.2.zip`。打包仅使用 [发布清单](release-manifest.json) 中的文件，并生成逐文件 SHA-256；新增文件须审查后显式加入清单。文件时间戳固定，同一环境和相同输入产生相同 ZIP。已有不同内容的包不会默认覆盖。发布前先运行测试，打包成功本身不代表测试通过。
 
 工具不会自动生成最终笔记、理解照片或判断老师是否讲过。逐字稿工具默认不覆盖不同内容；链接检查只读、不访问网络。语法范围、输出与退出码见 [脚本说明](references/tooling.md)。
 
@@ -45,7 +45,7 @@ python -m unittest discover -s tests -v
 - [贡献约定](CONTRIBUTING.md)
 - [验证报告](docs/VALIDATION.md)
 
-只发布本项目目录。所有样例均为人工合成，课堂录音、照片、扫描教材和私人路径不属于发布内容。GitHub Actions 已配置 Windows、Linux、macOS 与多个 Python 版本；实际远端运行结果以发布后的 CI 为准。
+只发布本项目目录。所有样例均为人工合成，课堂录音、照片、扫描教材和私人路径不属于发布内容。Windows、Linux、macOS × Python 3.10/3.12/3.14 的9组远端验证已实际通过，具体提交和运行证据见验证报告；后续变更以对应提交的 CI 为准。
 
 ## License
 

@@ -1,0 +1,170 @@
+{
+  "verified_on": "2026-10-24",
+  "repository": "WhatYearIsNow/ketang-zhongdian",
+  "visibility_when_verified": "private",
+  "tested_commit": "151e37ddfa4e605e6604e7f8b40e23630056b303",
+  "run_id": 40056828768,
+  "run_url": "https://github.com/WhatYearIsNow/ketang-zhongdian/actions/runs/40056828768",
+  "jobs": [
+    {
+      "id": 120761535941,
+      "name": "test (ubuntu-latest, 3.10)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536029,
+      "name": "test (ubuntu-latest, 3.14)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536039,
+      "name": "test (macos-latest, 3.12)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536053,
+      "name": "test (macos-latest, 3.10)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536091,
+      "name": "test (windows-latest, 3.12)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536092,
+      "name": "test (windows-latest, 3.14)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536096,
+      "name": "test (macos-latest, 3.14)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536117,
+      "name": "test (windows-latest, 3.10)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    },
+    {
+      "id": 120761536129,
+      "name": "test (ubuntu-latest, 3.12)",
+      "conclusion": "success",
+      "tests": 86,
+      "skipped": 0,
+      "build": "success"
+    }
+  ],
+  "normalization_regression": {
+    "tested_commit": "193fc565e55dee710c6ed3f43319e27cfc2b4cec",
+    "run_id": 40056956215,
+    "run_url": "https://github.com/WhatYearIsNow/ketang-zhongdian/actions/runs/40056956215",
+    "jobs": [
+      {
+        "id": 120761928775,
+        "name": "test (ubuntu-latest, 3.12)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761928895,
+        "name": "test (windows-latest, 3.14)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "144249f4fb7130ce287816cf18a0d537829a34ab49ea279570d6eed0078ee689"
+      },
+      {
+        "id": 120761928947,
+        "name": "test (ubuntu-latest, 3.14)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761928954,
+        "name": "test (windows-latest, 3.12)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761928957,
+        "name": "test (macos-latest, 3.10)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761928958,
+        "name": "test (macos-latest, 3.12)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761928990,
+        "name": "test (ubuntu-latest, 3.10)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761929015,
+        "name": "test (macos-latest, 3.14)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      },
+      {
+        "id": 120761929016,
+        "name": "test (windows-latest, 3.10)",
+        "conclusion": "success",
+        "tests": 86,
+        "skipped": 0,
+        "build": "success",
+        "package_sha256": "62696102dd13c0ff602c1d1ef86dd2dbfe4479f6c1dc56bd10732bf2d487b372"
+      }
+    ]
+  }
+}

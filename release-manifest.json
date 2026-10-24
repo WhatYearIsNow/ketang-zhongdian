@@ -1,6 +1,6 @@
 {
   "name": "ketang-zhongdian",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "files": [
     ".gitattributes",
     ".github/workflows/test.yml",
@@ -14,6 +14,7 @@
     "assets/note-template.md",
     "docs/REFACTOR_PLAN.md",
     "docs/VALIDATION.md",
+    "docs/ci-results.json",
     "evals/cases.json",
     "references/evidence.md",
     "references/integration.md",
