@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Build a deterministic ZIP from an explicit, reviewed release manifest."""
+
 from __future__ import annotations
 
 import argparse
@@ -18,7 +19,9 @@ def payload(root: Path) -> tuple[bytes, int]:
     manifest = json.loads((root / "release-manifest.json").read_text(encoding="utf-8"))
     if not isinstance(manifest, dict) or manifest.get("name") != "ketang-zhongdian":
         raise ValueError("manifest name must be ketang-zhongdian")
-    if not isinstance(manifest.get("version"), str) or not re.fullmatch(r"\d+\.\d+\.\d+", manifest["version"]):
+    if not isinstance(manifest.get("version"), str) or not re.fullmatch(
+        r"\d+\.\d+\.\d+", manifest["version"]
+    ):
         raise ValueError("manifest version must be major.minor.patch")
     names = manifest.get("files")
     if not isinstance(names, list) or not names or not all(isinstance(n, str) for n in names):
@@ -31,7 +34,12 @@ def payload(root: Path) -> tuple[bytes, int]:
     entries = {}
     for name in sorted(names):
         rel = PurePosixPath(name)
-        if rel.is_absolute() or any(p in ("..", ".", "") for p in name.split("/")) or "\\" in name or ":" in name:
+        if (
+            rel.is_absolute()
+            or any(p in ("..", ".", "") for p in name.split("/"))
+            or "\\" in name
+            or ":" in name
+        ):
             raise ValueError(f"unsafe release path: {name}")
         source = root / name
         if not source.resolve().is_relative_to(root):
@@ -43,7 +51,9 @@ def payload(root: Path) -> tuple[bytes, int]:
         entries[name] = source.read_bytes()
     if "MANIFEST.sha256" in entries:
         raise ValueError("MANIFEST.sha256 is generated, not a source file")
-    checksums = "".join(f"{hashlib.sha256(data).hexdigest()}  {name}\n" for name, data in entries.items())
+    checksums = "".join(
+        f"{hashlib.sha256(data).hexdigest()}  {name}\n" for name, data in entries.items()
+    )
     entries["MANIFEST.sha256"] = checksums.encode("utf-8")
     output = io.BytesIO()
     with zipfile.ZipFile(output, "w") as archive:
@@ -65,10 +75,16 @@ def build(root: Path, output: Path, overwrite: bool = False) -> dict:
     data, count = payload(root)
     if output.exists():
         if output.read_bytes() == data:
-            return {"status": "unchanged", "files": count, "sha256": hashlib.sha256(data).hexdigest()}
+            return {
+                "status": "unchanged",
+                "files": count,
+                "sha256": hashlib.sha256(data).hexdigest(),
+            }
         if not overwrite:
             raise ValueError("output differs; review before using --overwrite")
-    fd, temporary_name = tempfile.mkstemp(prefix=".ketang-release-", suffix=".tmp", dir=output.parent)
+    fd, temporary_name = tempfile.mkstemp(
+        prefix=".ketang-release-", suffix=".tmp", dir=output.parent
+    )
     temporary = Path(temporary_name)
     try:
         with os.fdopen(fd, "wb") as handle:

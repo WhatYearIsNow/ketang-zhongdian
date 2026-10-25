@@ -23,9 +23,7 @@ class ValidationError(ValueError):
     """The supplied data cannot safely be used for calibration."""
 
 
-_PHOTO_TIME = re.compile(
-    r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?"
-)
+_PHOTO_TIME = re.compile(r"\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?(?:Z|[+-]\d{2}:\d{2})?")
 _DURATION = re.compile(r"\d+:\d{2}(?:\.\d+)?|\d+:\d{2}:\d{2}(?:\.\d+)?")
 
 
@@ -131,12 +129,16 @@ def analyze(data: Any, tolerance: float = 120) -> dict[str, Any]:
             for photo_time, transcript_seconds, _ in parsed
         ]
     except (OverflowError, ValueError) as exc:
-        raise ValidationError("candidate recording start is outside the supported date range") from exc
+        raise ValidationError(
+            "candidate recording start is outside the supported date range"
+        ) from exc
 
     status = (
         "provisional"
         if len(parsed) == 1
-        else "candidate" if max_residual <= tolerance_seconds else "inconsistent"
+        else "candidate"
+        if max_residual <= tolerance_seconds
+        else "inconsistent"
     )
     return {
         "status": status,
@@ -155,8 +157,13 @@ def analyze(data: Any, tolerance: float = 120) -> dict[str, Any]:
                 "candidate_recording_start": individual_start.isoformat(),
                 "residual_seconds": residual,
             }
-            for (photo_time, transcript_seconds, evidence), offset, individual_start, residual
-            in zip(parsed, offsets, individual_starts, residuals)
+            for (
+                photo_time,
+                transcript_seconds,
+                evidence,
+            ), offset, individual_start, residual in zip(
+                parsed, offsets, individual_starts, residuals
+            )
         ],
         "limitations": [
             "Assumes one constant offset; pauses, edits, clock drift, and multiple recordings may require separate segments.",
@@ -174,10 +181,17 @@ def _reject_json_constant(value: str) -> None:
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("input", type=Path, help="JSON object containing matched anchors")
-    parser.add_argument("--tolerance", type=float, default=120, help="maximum absolute residual in seconds (default: 120)")
+    parser.add_argument(
+        "--tolerance",
+        type=float,
+        default=120,
+        help="maximum absolute residual in seconds (default: 120)",
+    )
     args = parser.parse_args(argv)
     try:
-        data = json.loads(args.input.read_text(encoding="utf-8-sig"), parse_constant=_reject_json_constant)
+        data = json.loads(
+            args.input.read_text(encoding="utf-8-sig"), parse_constant=_reject_json_constant
+        )
         result = analyze(data, args.tolerance)
     except (OSError, UnicodeError, ValueError, RecursionError) as exc:
         print(json.dumps({"status": "invalid", "error": str(exc)}, ensure_ascii=True))

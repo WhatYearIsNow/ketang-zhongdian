@@ -40,7 +40,9 @@ class LinkTests(unittest.TestCase):
         return [item["kind"] for item in report["issues"]]
 
     def cli(self, *args: str) -> subprocess.CompletedProcess:
-        return subprocess.run([sys.executable, str(SCRIPT), *args], capture_output=True, text=True, encoding="utf-8")
+        return subprocess.run(
+            [sys.executable, str(SCRIPT), *args], capture_output=True, text=True, encoding="utf-8"
+        )
 
     def test_inline_links_and_images(self) -> None:
         self.make("课程/课程录音/1023.txt")
@@ -80,7 +82,9 @@ class LinkTests(unittest.TestCase):
 
     def test_reference_full_collapsed_shortcut_case_and_whitespace(self) -> None:
         self.make("课程/课堂重点/a b.txt")
-        report = self.check('[visible][FILE ID]\n[file   id][]\n[file id]\n\n[file id]: <a b.txt> "title"')
+        report = self.check(
+            '[visible][FILE ID]\n[file   id][]\n[file id]\n\n[file id]: <a b.txt> "title"'
+        )
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["checked"], 3)
 
@@ -122,18 +126,24 @@ class LinkTests(unittest.TestCase):
 
     def test_audio_over_an_hour_and_anchor_only(self) -> None:
         self.make("课程/课程录音/1023 课名.m4a")
-        report = self.check("[[1023 课名.m4a#t=01:07:07|1:07:07–1:10:00]]\n[section](#not-validated)")
+        report = self.check(
+            "[[1023 课名.m4a#t=01:07:07|1:07:07–1:10:00]]\n[section](#not-validated)"
+        )
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["checked"], 2)
 
     def test_external_urls_skipped_without_network(self) -> None:
-        report = self.check("[one](https://example.invalid/x)\n[mail](mailto:x@example.invalid)\n[cdn](//example.invalid/x)\n<https://example.invalid>\n<x@example.invalid>")
+        report = self.check(
+            "[one](https://example.invalid/x)\n[mail](mailto:x@example.invalid)\n[cdn](//example.invalid/x)\n<https://example.invalid>\n<x@example.invalid>"
+        )
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["checked"], 0)
         self.assertEqual(report["skipped"], 5)
 
     def test_fenced_inline_code_and_comments_are_ignored(self) -> None:
-        report = self.check("```markdown\n[bad](missing.txt)\n```\n~~~\n[[missing]]\n~~~\n`[bad](missing)` and ``![[missing]]``\n<!-- [bad](missing)\n[[missing]] -->")
+        report = self.check(
+            "```markdown\n[bad](missing.txt)\n```\n~~~\n[[missing]]\n~~~\n`[bad](missing)` and ``![[missing]]``\n<!-- [bad](missing)\n[[missing]] -->"
+        )
         self.assertTrue(report["ok"], report)
         self.assertEqual(report["checked"], 0)
 
@@ -178,7 +188,9 @@ class LinkTests(unittest.TestCase):
         for opening in ["```", "~~~", "```html <!--"]:
             with self.subTest(opening=opening):
                 closing = "~~~" if opening == "~~~" else "```"
-                report = self.check(f"{opening}\n<!--\n[ignored](inside-fence.md)\n{closing}\n[broken](missing.md)")
+                report = self.check(
+                    f"{opening}\n<!--\n[ignored](inside-fence.md)\n{closing}\n[broken](missing.md)"
+                )
                 self.assertEqual(report["checked"], 1)
                 self.assertEqual(self.kinds(report), ["missing"])
 
@@ -223,12 +235,26 @@ class LinkTests(unittest.TestCase):
             self.assertEqual(self.kinds(self.check("[bad](escape.txt)")), ["outside_root"])
 
     def test_malformed_percent_query_and_file_url_report_unsupported(self) -> None:
-        for target in ["bad%ZZ.md", "file.md?download=1", "file:///tmp/x", "C:/data/file.txt", "%FF.txt"]:
+        for target in [
+            "bad%ZZ.md",
+            "file.md?download=1",
+            "file:///tmp/x",
+            "C:/data/file.txt",
+            "%FF.txt",
+        ]:
             with self.subTest(target=target):
                 self.assertEqual(self.kinds(self.check(f"[bad]({target})")), ["unsupported"])
 
     def test_malformed_and_multiline_links_report_unsupported(self) -> None:
-        for text in ["[bad](missing", "[bad](<missing)", "[bad](<x> junk)", "[[bad", "[bad\n](missing)", "[bad]:\n  missing.md", "[bad]: a(b"]:
+        for text in [
+            "[bad](missing",
+            "[bad](<missing)",
+            "[bad](<x> junk)",
+            "[[bad",
+            "[bad\n](missing)",
+            "[bad]:\n  missing.md",
+            "[bad]: a(b",
+        ]:
             with self.subTest(text=text):
                 report = self.check(text)
                 self.assertIn("unsupported", self.kinds(report))
@@ -257,7 +283,12 @@ class LinkTests(unittest.TestCase):
         self.assertEqual(before, self.note.read_bytes())
 
     def test_invalid_inputs_raise_value_error(self) -> None:
-        for note, root in [(self.root / "missing.md", self.root), (self.root, self.root), (self.note, self.note), (self.note, self.root / "missing")]:
+        for note, root in [
+            (self.root / "missing.md", self.root),
+            (self.root, self.root),
+            (self.note, self.note),
+            (self.note, self.root / "missing"),
+        ]:
             with self.subTest(note=note, root=root):
                 with self.assertRaises(ValueError):
                     LINKS.check_note(note, root)
