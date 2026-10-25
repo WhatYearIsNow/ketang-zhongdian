@@ -10,3 +10,5 @@ Thumbs.db
 *.partial
 .env
 .env.*
+
+.ruff_cache/

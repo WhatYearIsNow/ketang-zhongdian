@@ -1,0 +1,2 @@
+# Reviewed development/test versions; not runtime dependencies.
+ruff==0.14.1

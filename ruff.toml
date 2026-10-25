@@ -1,0 +1,11 @@
+# Development formatting only; imports are never sorted automatically.
+required-version = "==0.14.1"
+target-version = "py310"
+line-length = 100
+force-exclude = true
+extend-exclude = ["sources", "fixtures", "node_modules", ".venv*", "build", "dist", "test-results", "_work", ".local"]
+
+[format]
+quote-style = "preserve"
+line-ending = "lf"
+docstring-code-format = false
