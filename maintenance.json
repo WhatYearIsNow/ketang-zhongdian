@@ -1,0 +1,83 @@
+{
+  "schemaVersion": 1,
+  "project": "ketang-zhongdian",
+  "skillName": "ketang-zhongdian",
+  "baseline": [
+    [
+      "{python}",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ]
+  ],
+  "test": [
+    [
+      "{python}",
+      "-B",
+      "-m",
+      "unittest",
+      "discover",
+      "-s",
+      "tests",
+      "-v"
+    ]
+  ],
+  "check": [
+    [
+      "{python}",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "scripts",
+      "tests"
+    ]
+  ],
+  "candidate": [
+    [
+      "{python}",
+      "-B",
+      "scripts/build_release.py",
+      "--output",
+      "{run}/artifacts/ketang-zhongdian.zip"
+    ]
+  ],
+  "artifact": "*.zip",
+  "archivePrefix": "ketang-zhongdian/",
+  "health": [
+    [
+      "{python}",
+      "-B",
+      "scripts/transcript.py",
+      "--help"
+    ]
+  ],
+  "preserve": [
+    ".local"
+  ],
+  "format-check": [
+    [
+      "{python}",
+      "-m",
+      "ruff",
+      "format",
+      "--check",
+      "scripts",
+      "tests"
+    ]
+  ],
+  "format": [
+    [
+      "{python}",
+      "-m",
+      "ruff",
+      "format",
+      "scripts",
+      "tests"
+    ]
+  ]
+}

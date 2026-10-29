@@ -22,14 +22,20 @@ class ReleaseTests(unittest.TestCase):
         self.base = Path(self.temp.name)
         self.root = self.base / "source with spaces"
         self.root.mkdir()
-        self.manifest = {"name": "ketang-zhongdian", "version": "0.2.1", "files": ["SKILL.md", "README.md", "LICENSE", "release-manifest.json"]}
+        self.manifest = {
+            "name": "ketang-zhongdian",
+            "version": "0.2.1",
+            "files": ["SKILL.md", "README.md", "LICENSE", "release-manifest.json"],
+        }
         for name in self.manifest["files"]:
             (self.root / name).write_text("合成测试", encoding="utf-8")
         self.save()
         self.output = self.base / "release.zip"
 
     def save(self):
-        (self.root / "release-manifest.json").write_text(json.dumps(self.manifest), encoding="utf-8")
+        (self.root / "release-manifest.json").write_text(
+            json.dumps(self.manifest), encoding="utf-8"
+        )
 
     def test_reproducible_and_checksummed(self):
         first, count = release.payload(self.root)
@@ -42,7 +48,9 @@ class ReleaseTests(unittest.TestCase):
             sums = archive.read("ketang-zhongdian/MANIFEST.sha256").decode()
             for line in sums.splitlines():
                 digest, name = line.split("  ", 1)
-                self.assertEqual(digest, hashlib.sha256(archive.read("ketang-zhongdian/" + name)).hexdigest())
+                self.assertEqual(
+                    digest, hashlib.sha256(archive.read("ketang-zhongdian/" + name)).hexdigest()
+                )
 
     def test_unlisted_private_inputs_never_published(self):
         (self.root / "private-recording.m4a").write_bytes(b"private")
@@ -51,9 +59,23 @@ class ReleaseTests(unittest.TestCase):
             self.assertFalse(any("private" in name for name in archive.namelist()))
 
     def test_unsafe_paths_and_collisions(self):
-        for path in ("../secret", "/secret", "C:/secret", "a\\b", "a/./b", "README.md", "readme.md"):
+        for path in (
+            "../secret",
+            "/secret",
+            "C:/secret",
+            "a\\b",
+            "a/./b",
+            "README.md",
+            "readme.md",
+        ):
             with self.subTest(path=path):
-                self.manifest["files"] = ["SKILL.md", "README.md", "LICENSE", "release-manifest.json", path]
+                self.manifest["files"] = [
+                    "SKILL.md",
+                    "README.md",
+                    "LICENSE",
+                    "release-manifest.json",
+                    path,
+                ]
                 self.save()
                 with self.assertRaises(ValueError):
                     release.payload(self.root)
@@ -79,7 +101,14 @@ class ReleaseTests(unittest.TestCase):
         self.assertEqual((self.root / "SKILL.md").read_text(encoding="utf-8"), "合成测试")
 
     def test_cli_reports_success_and_invalid_manifest(self):
-        command = [sys.executable, str(SCRIPT), '--source', str(self.root), '--output', str(self.output)]
+        command = [
+            sys.executable,
+            str(SCRIPT),
+            '--source',
+            str(self.root),
+            '--output',
+            str(self.output),
+        ]
         result = subprocess.run(command, capture_output=True, text=True, encoding='utf-8')
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertEqual(json.loads(result.stdout)['status'], 'written')

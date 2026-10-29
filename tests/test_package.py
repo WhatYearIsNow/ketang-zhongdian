@@ -5,7 +5,9 @@ from pathlib import Path
 import unittest
 
 ROOT = Path(__file__).resolve().parents[1]
-spec = importlib.util.spec_from_file_location("package_link_checker", ROOT / "scripts" / "check_links.py")
+spec = importlib.util.spec_from_file_location(
+    "package_link_checker", ROOT / "scripts" / "check_links.py"
+)
 links = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(links)
 

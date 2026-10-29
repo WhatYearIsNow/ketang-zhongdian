@@ -47,7 +47,9 @@ def decode_text(data: bytes, encoding: str | None = None) -> str:
     if encoding is None:
         if data.startswith((codecs.BOM_UTF32_LE, codecs.BOM_UTF32_BE)):
             raise TranscriptError("UTF-32 requires explicit --encoding utf-32")
-        encoding = "utf-16" if data.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)) else "utf-8-sig"
+        encoding = (
+            "utf-16" if data.startswith((codecs.BOM_UTF16_LE, codecs.BOM_UTF16_BE)) else "utf-8-sig"
+        )
     try:
         return data.decode(encoding, errors="strict")
     except (UnicodeError, LookupError) as exc:
@@ -73,11 +75,15 @@ def extract_docx(path: Path) -> tuple[str, list[str]]:
     warnings = []
     tags = {node.tag for node in body.iter()}
     if tags & OMITTED:
-        warnings.append("drawings/textboxes/tracked revisions omitted; read the original before claiming full coverage")
+        warnings.append(
+            "drawings/textboxes/tracked revisions omitted; read the original before claiming full coverage"
+        )
     if tags & {W + "footnoteReference", W + "endnoteReference", W + "altChunk"}:
         warnings.append("footnotes/endnotes/embedded content omitted; inspect with a document tool")
     if tags & {M + "oMath", M + "oMathPara"}:
-        warnings.append("OMML math formulas omitted; inspect and transcribe equations from the original")
+        warnings.append(
+            "OMML math formulas omitted; inspect and transcribe equations from the original"
+        )
     if any(i.tag == W + "instrText" for i in body.iter()):
         warnings.append("field instructions omitted; verify displayed field values in the original")
 
@@ -121,7 +127,9 @@ def atomic_write(path: Path, data: bytes, overwrite: bool = False) -> str:
         if path.read_bytes() == data:
             return "unchanged"
         if not overwrite:
-            raise TranscriptError("output exists with different content; use --overwrite after review")
+            raise TranscriptError(
+                "output exists with different content; use --overwrite after review"
+            )
     if not path.parent.is_dir():
         raise TranscriptError("output parent directory does not exist")
     fd, name = tempfile.mkstemp(prefix=".transcript-", suffix=".tmp", dir=path.parent)
@@ -140,13 +148,17 @@ def atomic_write(path: Path, data: bytes, overwrite: bool = False) -> str:
             except FileExistsError as exc:
                 if path.is_file() and path.read_bytes() == data:
                     return "unchanged"
-                raise TranscriptError("output was created concurrently; no overwrite performed") from exc
+                raise TranscriptError(
+                    "output was created concurrently; no overwrite performed"
+                ) from exc
         return "written"
     finally:
         temporary.unlink(missing_ok=True)
 
 
-def extract(source: Path, output: Path, *, encoding: str | None = None, overwrite: bool = False) -> dict:
+def extract(
+    source: Path, output: Path, *, encoding: str | None = None, overwrite: bool = False
+) -> dict:
     if source.resolve() == output.resolve():
         raise TranscriptError("input and output must be different files")
     if output.is_symlink():
@@ -167,8 +179,13 @@ def extract(source: Path, output: Path, *, encoding: str | None = None, overwrit
     content = normalize(raw)
     data = content.encode("utf-8")
     status = atomic_write(output, data, overwrite)
-    return {"ok": True, "status": status, "characters": len(content),
-            "sha256": hashlib.sha256(data).hexdigest(), "warnings": warnings}
+    return {
+        "ok": True,
+        "status": status,
+        "characters": len(content),
+        "sha256": hashlib.sha256(data).hexdigest(),
+        "warnings": warnings,
+    }
 
 
 def main(argv: list[str] | None = None) -> int:

@@ -43,7 +43,9 @@ _SCHEME = re.compile(r"^[A-Za-z][A-Za-z0-9+.-]*:")
 _DRIVE = re.compile(r"^[A-Za-z]:[\\/]")
 _FENCE = re.compile(r"^ {0,3}(`{3,}|~{3,})(.*)$")
 _HTML_LINK = re.compile(r"<(a|img)\b", re.IGNORECASE)
-_HTML_TARGET = re.compile(r"\b(?:href|src)\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))", re.IGNORECASE)
+_HTML_TARGET = re.compile(
+    r"\b(?:href|src)\s*=\s*(?:\"([^\"]*)\"|'([^']*)'|([^\s>]+))", re.IGNORECASE
+)
 
 
 def _unescape(value: str) -> str:
@@ -122,7 +124,7 @@ def _destination(text: str) -> str:
                 pos += 2
                 continue
             if value[pos] == ">":
-                suffix = value[pos + 1:].strip()
+                suffix = value[pos + 1 :].strip()
                 if suffix and _title_suffix("x " + suffix) != "x":
                     raise ValueError("Unexpected content after an angle destination")
                 return html.unescape(_unescape(value[1:pos]))
@@ -144,7 +146,9 @@ def _destination(text: str) -> str:
         elif value[pos] == ")":
             depth -= 1
             if depth < 0:
-                raise ValueError("Unbalanced destination parentheses; use <path> or percent escapes")
+                raise ValueError(
+                    "Unbalanced destination parentheses; use <path> or percent escapes"
+                )
         pos += 1
     if depth:
         raise ValueError("Unbalanced destination parentheses; use <path> or percent escapes")
@@ -177,7 +181,7 @@ def _inline_destination(text: str, start: int) -> tuple[str, int]:
         elif char == ")":
             depth -= 1
             if depth == 0:
-                return _destination(text[start + 1:pos]), pos + 1
+                return _destination(text[start + 1 : pos]), pos + 1
         if not char.isspace():
             first = False
         pos += 1
@@ -203,7 +207,7 @@ def _visible_lines(text: str) -> list[str]:
         return len(text) if end < 0 else end + 1
 
     def opening_fence(start: int) -> re.Match[str] | None:
-        match = _FENCE.match(text[start:line_end(start)].rstrip("\r\n"))
+        match = _FENCE.match(text[start : line_end(start)].rstrip("\r\n"))
         if match and not (match[1][0] == "`" and "`" in match[2]):
             return match
         return None
@@ -217,7 +221,12 @@ def _visible_lines(text: str) -> list[str]:
                 while end < len(text):
                     stop = line_end(end)
                     closer = _FENCE.match(text[end:stop].rstrip("\r\n"))
-                    if closer and closer[1][0] == fence[1][0] and len(closer[1]) >= len(fence[1]) and not closer[2].strip():
+                    if (
+                        closer
+                        and closer[1][0] == fence[1][0]
+                        and len(closer[1]) >= len(fence[1])
+                        and not closer[2].strip()
+                    ):
                         end = stop
                         break
                     end = stop
@@ -257,7 +266,9 @@ def _visible_lines(text: str) -> list[str]:
             if candidate < 0:
                 break
             after = candidate + width
-            if (candidate == 0 or text[candidate - 1] != "`") and (after == len(text) or text[after] != "`"):
+            if (candidate == 0 or text[candidate - 1] != "`") and (
+                after == len(text) or text[after] != "`"
+            ):
                 mask(pos, after)
                 pos, found = after, True
                 break
@@ -282,13 +293,19 @@ class LinkChecker:
 
     @staticmethod
     def external(target: str) -> bool:
-        return (bool(_SCHEME.match(target)) and not _DRIVE.match(target) and not target.casefold().startswith("file:")) or target.startswith("//")
+        return (
+            bool(_SCHEME.match(target))
+            and not _DRIVE.match(target)
+            and not target.casefold().startswith("file:")
+        ) or target.startswith("//")
 
     def file_index(self) -> dict[str, list[Path]]:
         if self._files is None:
             self._files = {}
+
             def fail(error: OSError) -> None:
                 raise error
+
             for parent, _dirs, names in os.walk(self.root, followlinks=False, onerror=fail):
                 for name in names:
                     self._files.setdefault(name.casefold(), []).append(Path(parent) / name)
@@ -301,10 +318,14 @@ class LinkChecker:
         self.checked += 1
         try:
             if raw_target.casefold().startswith("file:") or _DRIVE.match(raw_target):
-                raise ValueError("file: URLs and drive-letter destinations are unsupported; use a relative path")
+                raise ValueError(
+                    "file: URLs and drive-letter destinations are unsupported; use a relative path"
+                )
             raw_path = raw_target.split("#", 1)[0]
             if "?" in raw_path:
-                raise ValueError("Local URL queries are unsupported; percent-encode a literal question mark")
+                raise ValueError(
+                    "Local URL queries are unsupported; percent-encode a literal question mark"
+                )
             if re.search(r"%(?![0-9A-Fa-f]{2})", raw_path):
                 raise ValueError("Malformed percent escape in destination")
             path = unquote(raw_path, errors="strict").replace("\\", "/")
@@ -318,7 +339,12 @@ class LinkChecker:
                 if not Path(path).suffix:
                     candidates += index.get((path + ".md").casefold(), [])
                 if len(candidates) > 1:
-                    self.issue(line, raw_target, "ambiguous", "Wikilink filename is not unique within the root; add a vault-relative path")
+                    self.issue(
+                        line,
+                        raw_target,
+                        "ambiguous",
+                        "Wikilink filename is not unique within the root; add a vault-relative path",
+                    )
                     return
             else:
                 base = self.root if wiki else self.note.parent
@@ -331,7 +357,12 @@ class LinkChecker:
                 return
             resolved = candidates[0].resolve()
             if not resolved.is_relative_to(self.root):
-                self.issue(line, raw_target, "outside_root", "Destination resolves outside the permitted root")
+                self.issue(
+                    line,
+                    raw_target,
+                    "outside_root",
+                    "Destination resolves outside the permitted root",
+                )
             elif not resolved.exists():
                 self.issue(line, raw_target, "missing", "Destination file does not exist")
             elif not resolved.is_file():
@@ -341,7 +372,9 @@ class LinkChecker:
 
     def scan(self, text: str, line: int, depth: int = 0) -> None:
         if depth > 32:
-            self.issue(line, text[:100], "unsupported", "Markdown nesting exceeds the supported depth")
+            self.issue(
+                line, text[:100], "unsupported", "Markdown nesting exceeds the supported depth"
+            )
             return
         pos = 0
         while pos < len(text):
@@ -351,9 +384,14 @@ class LinkChecker:
             if text.startswith("[[", pos):
                 end = text.find("]]", pos + 2)
                 if end < 0:
-                    self.issue(line, text[pos:], "unsupported", "Unclosed wikilink; multiline wikilinks are unsupported")
+                    self.issue(
+                        line,
+                        text[pos:],
+                        "unsupported",
+                        "Unclosed wikilink; multiline wikilinks are unsupported",
+                    )
                     return
-                target = text[pos + 2:end].split("|", 1)[0].strip()
+                target = text[pos + 2 : end].split("|", 1)[0].strip()
                 if "[" in target or "]" in target or not target:
                     self.issue(line, target, "unsupported", "Malformed wikilink target")
                 else:
@@ -365,9 +403,14 @@ class LinkChecker:
                 if end is None:
                     # A bracket that continues on the next line is not accepted.
                     if pos + 1 < len(text):
-                        self.issue(line, text[pos:], "unsupported", "Unclosed bracket label; wrapped link labels are unsupported")
+                        self.issue(
+                            line,
+                            text[pos:],
+                            "unsupported",
+                            "Unclosed bracket label; wrapped link labels are unsupported",
+                        )
                     return
-                label = text[pos + 1:end]
+                label = text[pos + 1 : end]
                 after = end + 1
                 if after < len(text) and text[after] == "(":
                     try:
@@ -376,7 +419,9 @@ class LinkChecker:
                         self.issue(line, text[pos:], "unsupported", str(error))
                         return
                     if re.search(r"(?<!!)\[[^\]]*\]\(", label):
-                        self.issue(line, label, "unsupported", "Nested Markdown links are unsupported")
+                        self.issue(
+                            line, label, "unsupported", "Nested Markdown links are unsupported"
+                        )
                     else:
                         self.scan(label, line, depth + 1)
                     self.target(line, target)
@@ -387,11 +432,16 @@ class LinkChecker:
                     if ref_end is None:
                         self.issue(line, text[pos:], "unsupported", "Unclosed reference label")
                         return
-                    reference = text[after + 1:ref_end] or label
+                    reference = text[after + 1 : ref_end] or label
                     key = _reference(reference)
                     if key not in self.references:
                         self.checked += 1
-                        self.issue(line, reference, "undefined_reference", "No definition exists for this explicit reference")
+                        self.issue(
+                            line,
+                            reference,
+                            "undefined_reference",
+                            "No definition exists for this explicit reference",
+                        )
                     else:
                         self.target(line, self.references[key])
                     self.scan(label, line, depth + 1)
@@ -404,30 +454,44 @@ class LinkChecker:
                 pos = after
                 continue
             if text.startswith("](", pos):
-                self.issue(line, text[pos:], "unsupported", "Unmatched link label; wrapped labels are unsupported")
+                self.issue(
+                    line,
+                    text[pos:],
+                    "unsupported",
+                    "Unmatched link label; wrapped labels are unsupported",
+                )
                 return
             if text[pos] == "<":
                 html = _HTML_LINK.match(text, pos)
                 if html:
                     end = text.find(">", pos)
                     if end < 0:
-                        self.issue(line, text[pos:], "unsupported", "Multiline HTML links are unsupported")
+                        self.issue(
+                            line, text[pos:], "unsupported", "Multiline HTML links are unsupported"
+                        )
                         return
-                    tag = text[pos:end + 1]
+                    tag = text[pos : end + 1]
                     attribute = _HTML_TARGET.search(tag)
                     if attribute:
                         target = next(value for value in attribute.groups() if value is not None)
                         if self.external(target):
                             self.skipped += 1
                         else:
-                            self.issue(line, target, "unsupported", "Local HTML href/src links are unsupported; use Markdown")
+                            self.issue(
+                                line,
+                                target,
+                                "unsupported",
+                                "Local HTML href/src links are unsupported; use Markdown",
+                            )
                     elif html[1].casefold() == "img":
-                        self.issue(line, tag, "unsupported", "HTML image has no supported single-line src")
+                        self.issue(
+                            line, tag, "unsupported", "HTML image has no supported single-line src"
+                        )
                     pos = end + 1
                     continue
                 end = text.find(">", pos)
                 if end >= 0:
-                    target = text[pos + 1:end]
+                    target = text[pos + 1 : end]
                     if self.external(target) or re.fullmatch(r"[^\s<>@]+@[^\s<>@]+", target):
                         self.skipped += 1
                         pos = end + 1
@@ -442,13 +506,15 @@ class LinkChecker:
             if len(line) - len(value) > 3 or not value.startswith("[") or value.startswith("[["):
                 continue
             end = _closing_bracket(value, 0)
-            if end is None or not value[end + 1:].startswith(":"):
+            if end is None or not value[end + 1 :].startswith(":"):
                 continue
             definitions.add(number)
             try:
-                raw = value[end + 2:].strip()
+                raw = value[end + 2 :].strip()
                 if not raw:
-                    raise ValueError("Missing reference destination; multiline definitions are unsupported")
+                    raise ValueError(
+                        "Missing reference destination; multiline definitions are unsupported"
+                    )
                 key = _reference(value[1:end])
                 if not key:
                     raise ValueError("Empty reference labels are unsupported")
@@ -458,7 +524,12 @@ class LinkChecker:
         for number, line in enumerate(lines, 1):
             if number not in definitions:
                 self.scan(line, number)
-        return {"ok": not self.issues, "checked": self.checked, "skipped": self.skipped, "issues": self.issues}
+        return {
+            "ok": not self.issues,
+            "checked": self.checked,
+            "skipped": self.skipped,
+            "issues": self.issues,
+        }
 
 
 def check_note(note: Path | str, root: Path | str | None = None) -> dict[str, object]:
@@ -482,7 +553,9 @@ def main(argv: list[str] | None = None) -> int:
     for stream in (sys.stdout, sys.stderr):
         if hasattr(stream, "reconfigure"):
             stream.reconfigure(encoding="utf-8")
-    parser = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
+    parser = argparse.ArgumentParser(
+        description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter
+    )
     parser.add_argument("note", type=Path)
     parser.add_argument("--root", type=Path, help="Permitted vault root (default: NOTE.parent)")
     parser.add_argument("--json", action="store_true", dest="as_json")
@@ -490,17 +563,29 @@ def main(argv: list[str] | None = None) -> int:
     try:
         report = check_note(args.note, args.root)
     except ValueError as error:
-        report = {"ok": False, "checked": 0, "skipped": 0, "issues": [{"line": 0, "target": str(args.note), "kind": "input", "message": str(error)}]}
+        report = {
+            "ok": False,
+            "checked": 0,
+            "skipped": 0,
+            "issues": [
+                {"line": 0, "target": str(args.note), "kind": "input", "message": str(error)}
+            ],
+        }
         status = 2
     else:
         status = 0 if report["ok"] else 1
     if args.as_json:
         print(json.dumps(report, ensure_ascii=False, indent=2))
     else:
-        print(f"{'PASS' if report['ok'] else 'FAIL'}: checked={report['checked']}, skipped={report['skipped']}")
+        print(
+            f"{'PASS' if report['ok'] else 'FAIL'}: checked={report['checked']}, skipped={report['skipped']}"
+        )
         for issue in report["issues"]:
             print(f"Line {issue['line']} [{issue['kind']}] {issue['target']}: {issue['message']}")
-    print("Anchors (including audio timestamps) are not validated; external links are not fetched.", file=sys.stderr)
+    print(
+        "Anchors (including audio timestamps) are not validated; external links are not fetched.",
+        file=sys.stderr,
+    )
     return status
 
 

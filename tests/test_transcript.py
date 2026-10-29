@@ -25,15 +25,19 @@ class TranscriptTests(unittest.TestCase):
 
     def docx(self, inner):
         source = self.root / "原稿.docx"
-        xml = ('<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-               '<w:body>' + inner + '</w:body></w:document>')
+        xml = (
+            '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+            '<w:body>' + inner + '</w:body></w:document>'
+        )
         with zipfile.ZipFile(source, "w") as archive:
             archive.writestr("word/document.xml", xml)
         return source
 
     def test_speaker_only_at_line_start(self):
-        self.assertEqual(t.normalize("• Speaker 1 00:01\r\n提到 Speaker 2\n"),
-                         "• 发言者 1 00:01\n提到 Speaker 2\n")
+        self.assertEqual(
+            t.normalize("• Speaker 1 00:01\r\n提到 Speaker 2\n"),
+            "• 发言者 1 00:01\n提到 Speaker 2\n",
+        )
 
     def test_plain_english_without_speaker_is_valid(self):
         self.source.write_bytes(b"A lecture with no speaker labels.\r\n")
@@ -85,18 +89,24 @@ class TranscriptTests(unittest.TestCase):
         self.assertEqual(self.source.read_bytes(), b"source")
 
     def test_docx_table_order_tabs_and_breaks(self):
-        source = self.docx('<w:p><w:r><w:t>Speaker 1</w:t><w:tab/><w:t>00:00</w:t>'
-                           '<w:br/><w:t>第一段</w:t></w:r></w:p>'
-                           '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>表格</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
-                           '<w:p><w:r><w:t>末段</w:t></w:r></w:p>')
+        source = self.docx(
+            '<w:p><w:r><w:t>Speaker 1</w:t><w:tab/><w:t>00:00</w:t>'
+            '<w:br/><w:t>第一段</w:t></w:r></w:p>'
+            '<w:tbl><w:tr><w:tc><w:p><w:r><w:t>表格</w:t></w:r></w:p></w:tc></w:tr></w:tbl>'
+            '<w:p><w:r><w:t>末段</w:t></w:r></w:p>'
+        )
         t.extract(source, self.output)
-        self.assertEqual(self.output.read_text(encoding="utf-8"), "发言者 1\t00:00\n第一段\n表格\n末段\n")
+        self.assertEqual(
+            self.output.read_text(encoding="utf-8"), "发言者 1\t00:00\n第一段\n表格\n末段\n"
+        )
 
     def test_unsupported_docx_structures_warn_without_duplicate_text(self):
-        source = self.docx('<w:p><w:r><w:t>正文</w:t><w:drawing><w:txbxContent>'
-                           '<w:p><w:r><w:t>框内</w:t></w:r></w:p></w:txbxContent></w:drawing>'
-                           '<w:footnoteReference w:id="1"/></w:r></w:p>'
-                           '<w:ins><w:p><w:r><w:t>修订</w:t></w:r></w:p></w:ins>')
+        source = self.docx(
+            '<w:p><w:r><w:t>正文</w:t><w:drawing><w:txbxContent>'
+            '<w:p><w:r><w:t>框内</w:t></w:r></w:p></w:txbxContent></w:drawing>'
+            '<w:footnoteReference w:id="1"/></w:r></w:p>'
+            '<w:ins><w:p><w:r><w:t>修订</w:t></w:r></w:p></w:ins>'
+        )
         result = t.extract(source, self.output)
         self.assertTrue(result["warnings"])
         self.assertEqual(self.output.read_text(encoding="utf-8"), "正文\n")
@@ -111,9 +121,11 @@ class TranscriptTests(unittest.TestCase):
             self.assertEqual(self.output.read_bytes(), b"keep")
 
     def test_math_is_not_silently_lost(self):
-        source = self.docx('<w:p xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
-                           '<w:r><w:t>Formula:</w:t></w:r>'
-                           '<m:oMath><m:r><m:t>E=mc2</m:t></m:r></m:oMath></w:p>')
+        source = self.docx(
+            '<w:p xmlns:m="http://schemas.openxmlformats.org/officeDocument/2006/math">'
+            '<w:r><w:t>Formula:</w:t></w:r>'
+            '<m:oMath><m:r><m:t>E=mc2</m:t></m:r></m:oMath></w:p>'
+        )
         result = t.extract(source, self.output)
         self.assertTrue(any("OMML" in item for item in result["warnings"]))
         self.assertEqual(self.output.read_text(encoding="utf-8"), "Formula:\n")
@@ -121,10 +133,12 @@ class TranscriptTests(unittest.TestCase):
     def test_dtd_rejected_in_utf8_and_utf16(self):
         for encoding in ("utf-8", "utf-16"):
             source = self.root / "entity.docx"
-            xml = ('<?xml version="1.0" encoding="' + encoding + '"?>'
-                   '<!DOCTYPE x [<!ENTITY payload "injected">]>'
-                   '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
-                   '<w:body><w:p><w:r><w:t>&payload;</w:t></w:r></w:p></w:body></w:document>')
+            xml = (
+                '<?xml version="1.0" encoding="' + encoding + '"?>'
+                '<!DOCTYPE x [<!ENTITY payload "injected">]>'
+                '<w:document xmlns:w="http://schemas.openxmlformats.org/wordprocessingml/2006/main">'
+                '<w:body><w:p><w:r><w:t>&payload;</w:t></w:r></w:p></w:body></w:document>'
+            )
             with zipfile.ZipFile(source, "w") as archive:
                 archive.writestr("word/document.xml", xml.encode(encoding))
             with self.assertRaises(t.TranscriptError):
@@ -132,9 +146,15 @@ class TranscriptTests(unittest.TestCase):
             self.assertFalse(self.output.exists())
 
     def test_deep_nesting_cli_has_explained_error(self):
-        source = self.docx('<w:sdt>' * 1100 + '<w:p><w:r><w:t>deep</w:t></w:r></w:p>' + '</w:sdt>' * 1100)
-        result = subprocess.run([sys.executable, str(SCRIPT), str(source), '--output', str(self.output)],
-                                capture_output=True, text=True, encoding='utf-8')
+        source = self.docx(
+            '<w:sdt>' * 1100 + '<w:p><w:r><w:t>deep</w:t></w:r></w:p>' + '</w:sdt>' * 1100
+        )
+        result = subprocess.run(
+            [sys.executable, str(SCRIPT), str(source), '--output', str(self.output)],
+            capture_output=True,
+            text=True,
+            encoding='utf-8',
+        )
         self.assertEqual(result.returncode, 2)
         self.assertFalse(json.loads(result.stdout)["ok"])
         self.assertNotIn("Traceback", result.stderr)
@@ -160,6 +180,7 @@ class TranscriptTests(unittest.TestCase):
         def race(src, dst):
             Path(dst).write_bytes(b"someone else")
             raise FileExistsError()
+
         with patch.object(t, "publish_no_clobber", side_effect=race):
             with self.assertRaises(t.TranscriptError):
                 t.atomic_write(self.output, b"ours")
@@ -172,8 +193,12 @@ class TranscriptTests(unittest.TestCase):
         result = subprocess.run(command, capture_output=True, text=True, encoding="utf-8")
         self.assertEqual(result.returncode, 0, result.stderr)
         self.assertTrue(json.loads(result.stdout)["ok"])
-        result = subprocess.run(command[:-3] + [str(self.root / "missing.txt"), "--output", str(self.output)],
-                                capture_output=True, text=True, encoding="utf-8")
+        result = subprocess.run(
+            command[:-3] + [str(self.root / "missing.txt"), "--output", str(self.output)],
+            capture_output=True,
+            text=True,
+            encoding="utf-8",
+        )
         self.assertEqual(result.returncode, 2)
         self.assertNotIn("Traceback", result.stderr)
 

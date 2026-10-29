@@ -50,3 +50,5 @@ python -m unittest discover -s tests -v
 ## License
 
 [MIT](LICENSE)，仅适用于本项目代码与文档，不授予任何外部课堂资料的再分发权。
+
+开发、测试、候选构建和回退约定见[维护流程](MAINTENANCE.md)。
