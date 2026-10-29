@@ -48,6 +48,9 @@
   ],
   "artifact": "*.zip",
   "archivePrefix": "ketang-zhongdian/",
+  "archiveMetadata": [
+    "MANIFEST.sha256"
+  ],
   "health": [
     [
       "{python}",
